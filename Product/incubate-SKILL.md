@@ -193,6 +193,23 @@ Search proactively throughout the conversation — don't wait to be asked:
 
 Share findings as you go. When something challenges assumptions, share it directly: "I just found something — [competitor] launched this six months ago with [traction]. How does that change your thinking?"
 
+### Parallel research with subagents
+
+When you need broad, independent research strands — multiple competitors, several market segments, distribution channels across industries — fan them out as parallel `general-purpose` subagents in a single message. This keeps the main conversation focused on synthesis instead of dumping raw search results into context.
+
+Good fits for parallelization:
+- One subagent per major competitor (deep dive: pricing, positioning, traction, weaknesses)
+- One subagent for market sizing (analyst reports, proxy data) running alongside one for customer evidence (forums, reviews, complaints)
+- One subagent per candidate distribution channel when GTM is uncertain
+
+Brief each subagent with the specific question and ask for a tight summary (under 200 words) — not a transcript. Synthesize findings yourself before sharing with the user; don't relay raw subagent output.
+
+Use single web searches (not subagents) for quick verification of a single claim — subagents are for breadth, not speed.
+
+## Dates
+
+When the user mentions timeframes ("ship by Q2", "in two quarters", "next year"), convert to absolute dates in the PRD (e.g., "Target launch: 2026-Q3" or "by 2026-09-30"). Relative dates rot the moment the document is read in a different month.
+
 ## Producing the PRD
 
 Only produce a PRD after a **Build** decision at the checkpoint. The PRD synthesizes the conversation and research — it's not a transcript.
@@ -279,11 +296,16 @@ Primary metric, leading indicators, thresholds that signal PMF vs. need-to-pivot
 Top 2-3 failure scenarios from incubation. For each: what it looks like, likelihood, early warning signs, mitigation plan.
 
 ## Key Assumptions
-What we're betting on. For each: how to validate, by when. Separate blocking from iterative.
+What we're betting on. For each: how to validate, by when (absolute date). Separate blocking from iterative.
 
 ## Open Questions
 What we don't know yet. Prioritized: blocking vs. iterative.
+
+## Change Log
+- YYYY-MM-DD — Initial PRD created from incubation conversation.
 ```
+
+The Change Log is mandatory. Downstream skills (`/feature-design`, `/feature-decompose`) will append entries when they update the PRD — this preserves an audit trail of how the PRD evolved as features got designed and decomposed.
 
 ### Research Citations
 

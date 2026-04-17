@@ -44,6 +44,12 @@ If there's no PRD, proceed without it. Note the absence in the FRD's risks secti
 
 "Is there anything else I should read — rough notes, a Slack thread, customer feedback, a previous attempt? The more context, the faster we get to the hard questions."
 
+### Codebase context (when relevant)
+
+If this feature extends an existing product (not greenfield), the existing codebase shapes what's realistic. Spawn an `Explore` subagent (thoroughness: "medium") with a tight brief: what the feature is, what existing components/flows might be relevant, and what you need to know — current entry points, similar patterns already shipped, constraints. Ask for a summary under 300 words.
+
+This keeps the main conversation focused on product thinking while you absorb just enough technical reality to avoid designing something the codebase quietly disallows. Skip this step for greenfield features or when the user explicitly says "design without code constraints."
+
 ## Conversation Flow
 
 ### Phase 0 — Initial Take (Immediate)
@@ -203,7 +209,12 @@ Primary metric with expected movement. Leading indicators for early signal.
 
 ## Risks & Open Questions
 What could go wrong. What we're assuming. What we still need to learn. Dependencies.
+
+## Change Log
+- YYYY-MM-DD — Initial FRD created from design conversation.
 ```
+
+The Change Log is mandatory. `/feature-decompose` will append entries when it updates the FRD based on what decomposition reveals — preserve the audit trail.
 
 ## Updating the Parent PRD
 
@@ -239,14 +250,24 @@ The design conversation often sharpens or changes understanding of the product. 
 
 Don't rewrite the PRD wholesale — make targeted updates that keep it accurate. The PRD should always reflect the current best understanding of the product, informed by the cumulative design work across all FRDs.
 
-### 3. Confirm the update
+### 3. Append a Change Log entry
+
+Add a dated entry to the PRD's `## Change Log` section summarizing what changed and why. Use today's absolute date (e.g., 2026-04-17), not relative. Example:
+
+```markdown
+- 2026-04-17 — Designed Dark Mode feature. Linked FRD-dark-mode.md from Now scope. Moved Theme Customization from Now to Next based on scope sharpening during design.
+```
+
+If the PRD doesn't have a Change Log section yet (older PRD predating this convention), add one at the bottom.
+
+### 4. Confirm the update
 
 Tell the user what you changed:
 
 "I've updated the PRD at [path]:
 - Linked this FRD from the [Now/Next/Later] scope section
 - [Any other changes, e.g., 'Moved feature X from Now to Next based on what we learned about scope']
-- [Any other changes]"
+- Added Change Log entry dated [today]"
 
 ## The Handoff
 

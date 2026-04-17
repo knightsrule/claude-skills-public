@@ -31,6 +31,16 @@ The user invokes `/feature-decompose` with an optional feature description or FR
 - `/feature-decompose path/to/FRD-dark-mode.md` — local FRD
 - `/feature-decompose https://...` — public FRD or doc URL
 
+### Plan mode as input
+
+If the user just exited plan mode (or references a plan from the current session), the approved plan is a first-class input — treat it as equivalent to an FRD for scope and acceptance criteria. The plan often contains more codebase-specific detail than an FRD would, so:
+
+- Use the plan's file/component references directly when writing story acceptance criteria
+- If the plan referenced an FRD, still update that FRD downstream (Phase 4)
+- If there's no FRD but the plan is detailed enough, proceed without one — but note in the epic description that decomposition came from a plan, not an FRD
+
+When both a plan and an FRD exist, the plan refines the FRD: trust the plan's technical specifics, trust the FRD's product intent. If they conflict on scope, surface it: "The plan adds X that isn't in the FRD — should we add it to the FRD scope or drop it from the plan?"
+
 ## Before You Start
 
 ### 1. Get the FRD
@@ -50,11 +60,21 @@ If you just finished a plan mode session, use the approved plan as the basis ins
 
 ### 2. Understand the codebase
 
-Read `CLAUDE.md` for project context, architecture, and conventions. Then explore the relevant areas of the codebase to understand:
+Read `CLAUDE.md` for project context, architecture, and conventions. Then orient on the relevant areas of the codebase to understand:
 
 - What already exists that this feature builds on
 - What's genuinely new work vs. extending existing code
 - Which sub-repos are involved (backend, frontend, etc.)
+
+**Use the `Explore` subagent for this** (thoroughness: "medium" for typical features, "very thorough" for cross-cutting features). Brief it with the FRD's scope and ask specifically:
+1. What existing components/services/patterns does this feature touch or extend?
+2. What's already implemented that the FRD's scope assumes is new?
+3. What sub-repos are involved?
+4. Any obvious risks, complexities, or dependencies the FRD didn't mention?
+
+Ask for a summary under 500 words. This protects your main context from raw file dumps and gets you a synthesized read of the codebase faster than serial Glob/Grep/Read.
+
+For trivial features in a small codebase, you can skip the subagent and explore directly. For anything non-trivial, fan out.
 
 This step is non-negotiable. Stories that don't reflect codebase reality are worthless.
 
@@ -130,13 +150,22 @@ Wait for user approval before creating anything. The user may:
 
 ### Check for overlap first
 
-Before creating anything, check what already exists:
+Before creating anything, check what already exists. `bd ready` only shows unblocked work — overlap can hide in blocked, in-progress, or proposed issues. Cast a wider net:
 
 ```bash
-bd ready
+bd list --status open
+bd list --label proposed
 ```
 
-Scan existing tasks for overlap. If you find similar tasks, flag them: "I see an existing task `bd-c2f1` — 'User login flow' — which looks related to Story 3. Should I link to it, skip creating a duplicate, or is this genuinely different?"
+For larger backlogs, also try keyword filtering:
+
+```bash
+bd list --status open | grep -i "<keyword from feature>"
+```
+
+Scan results for overlap with the stories you're about to create. If you find similar tasks, flag them: "I see an existing task `bd-c2f1` — 'User login flow' — which looks related to Story 3. Should I link to it, skip creating a duplicate, or is this genuinely different?"
+
+If `bd list` flags don't behave as expected, run `bd list --help` to check syntax for the installed version.
 
 ### Create the epic
 
@@ -230,13 +259,29 @@ If a parent PRD exists (referenced in the FRD's "Parent PRD" field), read it and
 
 Don't rewrite either document wholesale — make surgical updates that keep them accurate.
 
+### Append Change Log entries
+
+Add a dated entry to **both** the FRD's and the PRD's `## Change Log` sections (use today's absolute date). Each entry should summarize what changed and why — not what was decomposed, but what flowed back from decomposition.
+
+FRD example:
+```markdown
+- 2026-04-17 — Decomposed into 5 stories under epic bd-a3f8. Moved "bulk import" to Future Considerations (codebase showed existing import service can't be reused as assumed). Added 2 non-happy paths surfaced during decomposition.
+```
+
+PRD example:
+```markdown
+- 2026-04-17 — Decomposition of Dark Mode (FRD-dark-mode.md) revealed dependency on Theme Service refactor — added to Pre-Mortem as execution risk.
+```
+
+If either document doesn't have a Change Log section yet, add one at the bottom.
+
 ### Confirm the updates
 
 Tell the user what changed:
 
 "I've updated the documents:
-- FRD at [path]: [what changed — e.g., 'Added implementation link, moved X to Future Considerations based on codebase complexity']
-- PRD at [path]: [what changed — e.g., 'Updated effort assumption for this feature in Now section']"
+- FRD at [path]: [what changed — e.g., 'Added implementation link, moved X to Future Considerations based on codebase complexity'] + Change Log entry
+- PRD at [path]: [what changed — e.g., 'Updated effort assumption for this feature in Now section'] + Change Log entry"
 
 ## The Handoff
 
