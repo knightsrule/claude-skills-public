@@ -1,6 +1,7 @@
 ---
 name: fastapi-server
 description: "Template-based FastAPI server creation with production-ready defaults. Use when building new FastAPI servers or APIs with standardized patterns including: (1) configurable logging (console and file), (2) CORS configuration with environment-based origins, (3) request ID tracking, (4) global exception handling, (5) health check endpoints, (6) structured response formats, and (7) CLI argument support. Triggers on requests to create a FastAPI server, scaffold an API, build a REST API, or similar server initialization tasks."
+argument-hint: "<project-name> [--description \"...\"]"
 ---
 
 # FastAPI Server Template
@@ -191,12 +192,11 @@ export CORS_ORIGINS=https://myapp.com,https://api.myapp.com
 export APP_LOG_TO_FILE=true
 export APP_LOG_LEVEL=INFO
 
-# Run with gunicorn
-gunicorn src.main:app \
-    --workers 4 \
-    --worker-class uvicorn.workers.UvicornWorker \
-    --bind 0.0.0.0:8000
+# Run with uvicorn (multiple workers)
+uvicorn src.main:app --host 0.0.0.0 --port 8000 --workers 4
 ```
+
+> The old `gunicorn -k uvicorn.workers.UvicornWorker` pattern is deprecated — that worker class moved to the separate `uvicorn-worker` package. For most deployments `uvicorn --workers` (or a process manager / container orchestrator scaling replicas) is simpler. Pin exact versions with a lockfile (`pip freeze > requirements.lock`, or use `uv`/`pyproject.toml`) before deploying.
 
 ## Adding Custom Features
 

@@ -1,11 +1,13 @@
 ---
 name: promote-to-main
-description: Diff a branch against main in all child repos, code review, detect env var changes, suggest library version bumps, and give a go/no-go recommendation.
+description: Diff a branch against the default branch in all child repos, code review, detect env var changes, suggest library version bumps, and give a go/no-go recommendation. Use before promoting/releasing a branch, or when the user invokes /promote-to-main.
+argument-hint: "[branch to promote]"
+disable-model-invocation: true
 ---
 
-You are a release engineer + application security reviewer analyzing changes before promoting a branch to `main` across a multi-repo project.
+You are a release engineer + application security reviewer analyzing changes before promoting a branch to the default branch across a multi-repo project.
 
-**First:** Ask the user which branch they want to promote to main. Do not assume `dev` — wait for their answer before proceeding. Store their answer as `$BRANCH` and use it throughout.
+**First:** Determine the target branch. Per repo, detect the default branch with `git rev-parse --abbrev-ref origin/HEAD` (falls back to `main` if unset) — do not hardcode `main`, some repos use `master`. Store it as `$MAIN` per repo. Then ask the user which branch they want to promote. Do not assume `dev` — wait for their answer before proceeding. Store their answer as `$BRANCH` and use it throughout.
 
 **Repos to review:** Discover repos by scanning the root directory and its immediate subfolders for directories containing a `.git` folder. Each such directory is a repo to review. List the discovered repos before proceeding.
 
@@ -23,8 +25,8 @@ Follow this exact sequence. Do not skip steps.
 
 For each repo, `cd` into the directory and run:
 ```bash
-git diff main...$BRANCH --stat
-git diff main...$BRANCH
+git diff $MAIN...$BRANCH --stat
+git diff $MAIN...$BRANCH
 ```
 If the branch doesn't exist or there are no differences, note it and skip that repo.
 
@@ -81,11 +83,11 @@ Review each diff for the following concerns. Be specific — cite file paths and
 
 ### 3. Environment variable detection
 
-For each repo, detect new environment variables introduced on `$BRANCH` that don't exist on `main`:
+For each repo, detect new environment variables introduced on `$BRANCH` that don't exist on `$MAIN`:
 
 ```bash
-# Find all env var references on $BRANCH vs main
-git diff main...$BRANCH | grep -E '(os\.environ|os\.getenv|process\.env\.|NEXT_PUBLIC_|import\.meta\.env)'
+# Find all env var references on $BRANCH vs $MAIN
+git diff $MAIN...$BRANCH | grep -E '(os\.environ|os\.getenv|process\.env\.|NEXT_PUBLIC_|import\.meta\.env)'
 ```
 
 Also check for changes to these files on the `$BRANCH` branch:
@@ -109,7 +111,7 @@ For repos with changes, detect publishable packages by looking for version field
 
 Skip repos that appear to be deployed services rather than published packages (no publish config, no registry, or presence of deployment configs like `railway.toml`, `vercel.json`, `fly.toml`, `Dockerfile`, `Procfile`).
 
-Read the current version from both `main` and `$BRANCH`. If the version is unchanged but code has changed, recommend a version bump:
+Read the current version from both `$MAIN` and `$BRANCH`. If the version is unchanged but code has changed, recommend a version bump:
 
 - **Patch** (x.y.Z): Bug fixes only, no new features
 - **Minor** (x.Y.0): New features, non-breaking additions, new endpoints

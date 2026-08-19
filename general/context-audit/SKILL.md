@@ -7,7 +7,7 @@ description: >
   Starts by running /context to see real overhead, then audits MCP servers,
   CLAUDE.md rules, skills, settings, and file permissions. Returns a
   health score with specific fixes.
-user-invocable: true
+argument-hint: "(run /context first)"
 ---
 
 # Usage Audit
@@ -35,13 +35,15 @@ smallest. Run checks in parallel where possible.
 
 ### MCP Servers
 
-Each server loads full tool definitions into context every turn
-(~15,000-20,000 tokens each).
+Each server loads its tool definitions into context. Cost varies widely
+by server — a small one is under ~2K tokens, a large one (many tools,
+verbose schemas) can be 15K+. Don't assume a fixed per-server number;
+read the actual cost per server from the /context output.
 
 - Count configured servers from settings.json
+- Report each server's actual token cost from /context, largest first
 - Flag any with CLI alternatives (Playwright, Google Workspace, GitHub
   all have CLIs that cost zero tokens when idle)
-- Report total MCP overhead from /context output
 
 ### CLAUDE.md
 
@@ -77,8 +79,10 @@ Check settings.json for:
 
 | Setting | Flag if | Recommended |
 |---------|---------|-------------|
-| autocompact_percentage_override | Missing or > 80 | 75 |
-| BASH_MAX_OUTPUT_LENGTH (env) | At default (30-50K) | 150000 |
+| `CLAUDE_AUTOCOMPACT_PCT_OVERRIDE` (env) | Missing or > 80 | 75 |
+| `BASH_MAX_OUTPUT_LENGTH` (env) | At default (30-50K) | 150000 |
+
+Both go in the `env` block of settings.json, as string values. Note `CLAUDE_AUTOCOMPACT_PCT_OVERRIDE` only lowers the compaction threshold — values above ~83 are clamped to the default.
 
 ### File Permissions
 
@@ -106,7 +110,8 @@ Score starts at 100. Deduct per issue:
 | Missing bash output override | -5 |
 | Skill > 200 lines | -5 each |
 | Skill > 500 lines | -10 each |
-| Per MCP server | -3 each |
+| Per MCP server with a zero-token CLI alternative | -3 each |
+| Per MCP server costing > 10K tokens | -3 each |
 | No deny rules + bloat dirs exist | -10 |
 
 Floor at 0. Output this format:

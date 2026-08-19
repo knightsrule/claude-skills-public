@@ -2,6 +2,7 @@
 name: feature-design
 description: |
   Feature design conversation that produces a Feature Requirement Document (FRD) and updates the parent PRD. Use this when the user wants to think through a feature before building it — "let's design...", "I want to build...", "feature spec", "requirements for...", "FRD", or any variation where the intent is to define WHAT to build and WHY before jumping into HOW. This skill produces an FRD, links it back to the parent PRD (updating the PRD's scope section), and hands off to /feature-decompose for story breakdown. This is product-level design — not implementation planning, not architecture, not sprint planning.
+argument-hint: "[feature idea or PRD path]"
 ---
 
 # Feature Design — Product Partner Mode
@@ -46,7 +47,7 @@ If there's no PRD, proceed without it. Note the absence in the FRD's risks secti
 
 ### Codebase context (when relevant)
 
-If this feature extends an existing product (not greenfield), the existing codebase shapes what's realistic. Spawn an `Explore` subagent (thoroughness: "medium") with a tight brief: what the feature is, what existing components/flows might be relevant, and what you need to know — current entry points, similar patterns already shipped, constraints. Ask for a summary under 300 words.
+If this feature extends an existing product (not greenfield), the existing codebase shapes what's realistic. Spawn an `Explore` subagent (thoroughness: "medium") with a tight brief: what the feature is, what existing components/flows might be relevant, and what you need to know — current entry points, similar patterns already shipped, constraints. Ask for a summary under 300 words. If subagents aren't available in this runtime, do a quick codebase orientation inline instead (grep/read the relevant entry points) and keep it brief.
 
 This keeps the main conversation focused on product thinking while you absorb just enough technical reality to avoid designing something the codebase quietly disallows. Skip this step for greenfield features or when the user explicitly says "design without code constraints."
 

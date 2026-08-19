@@ -1,4 +1,19 @@
+---
+name: infosec-check
+description: "Pre-production external security audit against a website and API. Checks DNS/email (SPF, DMARC, DKIM), TLS, HTTP security headers, exposed endpoints, auth rate limiting, and optionally Cloudflare zone configuration. Use before a go-live, when the user says 'run an infosec check', 'security audit this site', or invokes /infosec-check. Only run against systems the user owns or is explicitly authorized to test."
+argument-hint: "<website-url> <api-url> [cloudflare-token]"
+disable-model-invocation: true
+---
+
+# Infosec Check
+
 You are running a pre-production infosec checklist. Your goal is to perform an external security audit against a website and API, combining publicly observable signals with Cloudflare API checks when a token is provided.
+
+## Authorization
+
+Only run these checks against systems the user owns or is explicitly authorized to test. The auth-endpoint check sends repeated failed logins and the endpoint probes send unsolicited traffic — this is active testing, not passive observation. If ownership or authorization is unclear, ask before running anything.
+
+Never accept a Cloudflare token pasted into the chat. Read it from an environment variable (e.g. `export CF_API_TOKEN=...`, then reference `$CF_API_TOKEN` in the commands below) so it does not land in the transcript.
 
 ## Step 1: Get inputs
 
@@ -23,7 +38,7 @@ dig TXT <domain> +short | grep spf
 dig TXT _dmarc.<domain> +short
 
 # Common DKIM selectors
-for sel in default mail cf2024-1 s1 s2 google amazonses; do
+for sel in default mail cf2024-1 s1 s2 selector1 selector2 google amazonses k1; do
   result=$(dig TXT ${sel}._domainkey.<domain> +short 2>/dev/null)
   [ -n "$result" ] && echo "DKIM[$sel]: found"
 done
@@ -93,7 +108,7 @@ Flag if expiry is within 30 days.
 First resolve the zone ID for the domain:
 ```bash
 curl -s -X GET "https://api.cloudflare.com/client/v4/zones?name=<domain>" \
-  -H "Authorization: Bearer <token>" \
+  -H "Authorization: Bearer $CF_API_TOKEN" \
   -H "Content-Type: application/json" | jq '.result[0].id'
 ```
 
@@ -102,27 +117,27 @@ Then run all checks using the zone ID:
 ```bash
 # All zone settings in one call
 curl -s "https://api.cloudflare.com/client/v4/zones/<zone_id>/settings" \
-  -H "Authorization: Bearer <token>" | jq '.result[] | select(.id | test("ssl|always_use_https|min_tls_version|security_level|browser_check|hotlink_protection|waf|development_mode|hsts|brotli")) | {id, value}'
+  -H "Authorization: Bearer $CF_API_TOKEN" | jq '.result[] | select(.id | test("ssl|always_use_https|min_tls_version|security_level|browser_check|hotlink_protection|waf|development_mode|hsts|brotli")) | {id, value}'
 
 # Bot Fight Mode
 curl -s "https://api.cloudflare.com/client/v4/zones/<zone_id>/bot_management" \
-  -H "Authorization: Bearer <token>" | jq '{fight_mode: .result.fight_mode, session_score: .result.enable_js}'
+  -H "Authorization: Bearer $CF_API_TOKEN" | jq '{fight_mode: .result.fight_mode, session_score: .result.enable_js}'
 
 # WAF managed rulesets
 curl -s "https://api.cloudflare.com/client/v4/zones/<zone_id>/rulesets" \
-  -H "Authorization: Bearer <token>" | jq '[.result[] | select(.phase == "http_request_firewall_managed") | {name, description}]'
+  -H "Authorization: Bearer $CF_API_TOKEN" | jq '[.result[] | select(.phase == "http_request_firewall_managed") | {name, description}]'
 
 # Email routing status
 curl -s "https://api.cloudflare.com/client/v4/zones/<zone_id>/email/routing" \
-  -H "Authorization: Bearer <token>" | jq '{enabled: .result.enabled, status: .result.status}'
+  -H "Authorization: Bearer $CF_API_TOKEN" | jq '{enabled: .result.enabled, status: .result.status}'
 
 # DNS records — flag any unproxied A/CNAME records (grey cloud = exposed origin IP)
 curl -s "https://api.cloudflare.com/client/v4/zones/<zone_id>/dns_records?per_page=100" \
-  -H "Authorization: Bearer <token>" | jq '[.result[] | select(.type == "A" or .type == "CNAME") | {name, type, proxied, content}]'
+  -H "Authorization: Bearer $CF_API_TOKEN" | jq '[.result[] | select(.type == "A" or .type == "CNAME") | {name, type, proxied, content}]'
 
 # Rate limiting rules
 curl -s "https://api.cloudflare.com/client/v4/zones/<zone_id>/rulesets" \
-  -H "Authorization: Bearer <token>" | jq '[.result[] | select(.phase == "http_ratelimit") | {name}]'
+  -H "Authorization: Bearer $CF_API_TOKEN" | jq '[.result[] | select(.phase == "http_ratelimit") | {name}]'
 ```
 
 Check for and flag:

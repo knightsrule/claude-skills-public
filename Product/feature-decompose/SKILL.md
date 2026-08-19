@@ -2,6 +2,7 @@
 name: feature-decompose
 description: |
   Break a feature into implementable INVEST stories, create them in beads, and update the FRD and PRD. Use this skill after /feature-design produces an FRD, after a plan mode session, or when the user has a clear feature idea and wants it decomposed into stories. Triggers on: "break this into stories", "decompose this feature", "create stories for...", "add to beads", or any variation where the intent is to produce implementable work items from a defined feature. Accepts an optional FRD path or URL as input — if one exists, use it as the source of truth for scope and acceptance criteria.
+argument-hint: "[feature idea or FRD path/URL]"
 ---
 
 # Feature Decompose — Engineering Partner Mode
@@ -74,7 +75,7 @@ Read `CLAUDE.md` for project context, architecture, and conventions. Then orient
 
 Ask for a summary under 500 words. This protects your main context from raw file dumps and gets you a synthesized read of the codebase faster than serial Glob/Grep/Read.
 
-For trivial features in a small codebase, you can skip the subagent and explore directly. For anything non-trivial, fan out.
+For trivial features in a small codebase, you can skip the subagent and explore directly. For anything non-trivial, fan out. If subagents aren't available in this runtime, do the codebase orientation inline with Glob/Grep/Read — it's slower but the step is still non-negotiable.
 
 This step is non-negotiable. Stories that don't reflect codebase reality are worthless.
 

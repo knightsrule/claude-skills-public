@@ -2,6 +2,7 @@
 name: prioritize
 description: |
   Prioritize proposed stories in the backlog using strategic alignment, impact, and codebase-informed effort analysis. Use this skill when stories need ranking before a sprint, after /feature-decompose produces stories, or when the user wants to decide what to build next. Requires a PRD or FRD for strategic context. Triggers on: "prioritize", "what should we build next", "rank the backlog", "score these stories", "which stories matter most".
+argument-hint: "[PRD or FRD path]"
 ---
 
 # Story Prioritization
@@ -181,3 +182,5 @@ The user may:
 On approval, update beads for each story:
 - Approved: `bd update <id> -p <priority>` then `bd label <id> approved`
 - Deferred: `bd defer <id>`
+
+If any `bd` command doesn't behave as expected, run `bd --help` (or `bd <subcommand> --help`) to check the syntax for the installed version.

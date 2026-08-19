@@ -62,10 +62,10 @@ pip install sqlalchemy asyncpg
 ### JWT Authentication
 
 ```python
+import jwt  # PyJWT
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from jose import JWTError, jwt
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 security = HTTPBearer()
 SECRET_KEY = os.getenv("SECRET_KEY")
@@ -73,7 +73,7 @@ ALGORITHM = "HS256"
 
 def create_access_token(data: dict, expires_delta: timedelta = timedelta(hours=1)):
     to_encode = data.copy()
-    expire = datetime.utcnow() + expires_delta
+    expire = datetime.now(timezone.utc) + expires_delta
     to_encode.update({"exp": expire})
     return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
@@ -85,7 +85,7 @@ async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(s
         if user_id is None:
             raise HTTPException(status_code=401, detail="Invalid token")
         return user_id
-    except JWTError:
+    except jwt.PyJWTError:
         raise HTTPException(status_code=401, detail="Invalid token")
 
 @app.get("/protected")
@@ -95,8 +95,10 @@ async def protected_route(user_id: str = Depends(get_current_user)):
 
 **Dependencies:**
 ```bash
-pip install python-jose[cryptography] passlib[bcrypt]
+pip install pyjwt passlib[bcrypt]
 ```
+
+> `python-jose` is effectively unmaintained; prefer **PyJWT** (`import jwt`) for new projects.
 
 ## Background Tasks
 

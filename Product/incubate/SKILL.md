@@ -1,7 +1,8 @@
 ---
 name: incubate
 description: |
-  Decision-oriented product incubation. Use this when the user has a product idea and wants a sharp sounding board to test viability, refine the concept, and produce a PRD if the idea holds up. Trigger on phrases like "I have an idea for...", "let's incubate...", "I want to explore building...", "PRD for...", "product strategy", "market opportunity", "what should we build", "is this a good idea", "product discovery", or any variation where the intent is to go from a rough idea to a validated product concept. This is product-level thinking — market, customers, competition, differentiation, and go-to-market — not feature-level design or implementation planning. If the user already has a validated product and wants to design a specific feature, use the design skill instead.
+  Decision-oriented product incubation. Use this when the user has a product idea and wants a sharp sounding board to test viability, refine the concept, and produce a PRD if the idea holds up. Trigger on phrases like "I have an idea for...", "let's incubate...", "I want to explore building...", "PRD for...", "product strategy", "market opportunity", "what should we build", "is this a good idea", "product discovery", or any variation where the intent is to go from a rough idea to a validated product concept. This is product-level thinking — market, customers, competition, differentiation, and go-to-market — not feature-level design or implementation planning. If the user already has a validated product and wants to design a specific feature, use /feature-design instead.
+argument-hint: "[product idea]"
 ---
 
 # Product Incubation — Cofounder Mode
@@ -195,7 +196,7 @@ Share findings as you go. When something challenges assumptions, share it direct
 
 ### Parallel research with subagents
 
-When you need broad, independent research strands — multiple competitors, several market segments, distribution channels across industries — fan them out as parallel `general-purpose` subagents in a single message. This keeps the main conversation focused on synthesis instead of dumping raw search results into context.
+When you need broad, independent research strands — multiple competitors, several market segments, distribution channels across industries — fan them out as parallel `general-purpose` subagents in a single message. This keeps the main conversation focused on synthesis instead of dumping raw search results into context. If subagents aren't available in this runtime, run the searches sequentially yourself and synthesize as you go.
 
 Good fits for parallelization:
 - One subagent per major competitor (deep dive: pricing, positioning, traction, weaknesses)
@@ -263,7 +264,7 @@ Same workflow, transformed. What changes, what's the "aha" moment. Quantified wh
 Timeframe, team size, budget, or other constraints that shape what's realistic.
 
 ### Now (Launch)
-The smallest set of features that delivers the core value proposition and proves the concept. These are what we build first — the product has no reason to exist without them. Meaningful detail on what each feature does, but not comprehensive design (that's the design skill's job).
+The smallest set of features that delivers the core value proposition and proves the concept. These are what we build first — the product has no reason to exist without them. Meaningful detail on what each feature does, but not comprehensive design (that's /feature-design's job).
 
 1. **[Feature]** — [What it does.] **Why now:** [Why this is essential for launch — what breaks without it.]
 2. **[Feature]** — [What it does.] **Why now:** [Why this can't wait.]
@@ -315,12 +316,12 @@ Cite sources throughout the PRD. When referencing market data, competitor info, 
 
 This is not a feature spec, an implementation plan, or a pitch deck. This is the strategic foundation — "should we build this and how do we win" — that precedes everything else.
 
-If the user already has a validated product and wants to design a specific feature, point them to the design skill. If they want to plan implementation, point them to plan mode.
+If the user already has a validated product and wants to design a specific feature, point them to /feature-design. If they want to plan implementation, point them to plan mode.
 
 ## The Handoff
 
 After saving the PRD:
 
-"The PRD is saved at [path]. When you're ready to break this into features, use the design skill — it'll use this PRD as context for designing individual features and producing FRDs with user stories."
+"The PRD is saved at [path]. When you're ready to break this into features, run /feature-design — it'll use this PRD as context for designing individual features and producing FRDs with user stories."
 
 Flow: incubate (PRD) → design (FRD + stories per feature) → plan mode (implementation). Each stage builds on the previous one's output.
